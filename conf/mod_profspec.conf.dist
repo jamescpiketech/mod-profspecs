@@ -9,7 +9,7 @@
 ########################################
 #
 #    ProfSpec.Enable
-#        Description: Enable the Profession Secilaizations module
+#        Description: Enable the Profession Specializations module
 #        Default:     true - Enabled
 #                     false - Disabled
 #
@@ -21,7 +21,7 @@ ProfSpec.Enable = true
 #######################################
 #
 # ProfSpec.<Profession>
-#	  Description: Enable or disable specific profressions
+#	  Description: Enable or disable specific professions
 #	  Default:     true - Enabled
 #                  false - Disabled
 #
@@ -38,7 +38,7 @@ ProfSpec.Tailoring = true
 ########################################
 #
 #    ProfSpec.CostEnabled
-#        Description: Enable a gold cost for learning specilizations
+#        Description: Enable a gold cost for learning specializations
 #        Default:     false - Disabled
 #                     true - Enabled
 #
@@ -46,8 +46,8 @@ ProfSpec.Tailoring = true
 ProfSpec.CostEnabled = false
 
 #    ProfSpec.Cost
-#        Description: Set the gold cost for learning specilizations
+#        Description: Set the gold cost for learning specializations
 #        Default:     10000
 #
 
-ProfSpec.Gold = 10000
+ProfSpec.Cost = 10000

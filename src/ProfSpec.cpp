@@ -32,6 +32,23 @@ enum Specs
 bool EnableAlch, EnableBSmith, EnableEng, EnableLeather, EnableTailor, EnableCost;
 int speccost;
 
+// Spec split by expansion (per design):
+// Vanilla (Classic): Alchemy (Potion/Elixir/Transmutation), Blacksmithing (Armorsmith/Weaponsmith + Axe/Sword/Hammer),
+// Engineering (Gnomish/Goblin), Leatherworking (Elemental/Tribal/Dragonscale)
+// The Burning Crusade: Tailoring (Mooncloth/Shadoweave/Spellfire)
+static uint8 GetRequiredLevelForSpec(uint32 specSpell)
+{
+    switch (specSpell)
+    {
+        case TAILOR_MOON:
+        case TAILOR_SPELL:
+        case TAILOR_SHADOW:
+            return 70;
+        default:
+            return 60;
+    }
+}
+
 
 class ProfSpec : public CreatureScript
 {
@@ -82,12 +99,24 @@ public:
             switch (SKILL)
             {
             case SKILL_ALCHEMY:
+                if (player->GetLevel() < 60)
+                {
+                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    CloseGossipMenuFor(player);
+                    return true;
+                }
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elixir Master", GOSSIP_SENDER_INFO, ALCH_ELIXIR);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Potion Master", GOSSIP_SENDER_INFO, ALCH_POTION);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Transmute Master", GOSSIP_SENDER_INFO, ALCH_TRANSMUTE);
                 break;
 
             case SKILL_BLACKSMITHING:
+                if (player->GetLevel() < 60)
+                {
+                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    CloseGossipMenuFor(player);
+                    return true;
+                }
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Armorsmith", GOSSIP_SENDER_INFO, BSMITH_ARMOR);
                 if (player->HasSpell(BSMITH_WEAPON))
                 {
@@ -102,17 +131,35 @@ public:
                 break;
 
             case SKILL_ENGINEERING:
+                if (player->GetLevel() < 60)
+                {
+                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    CloseGossipMenuFor(player);
+                    return true;
+                }
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Gnomish Engineering", GOSSIP_SENDER_INFO, ENG_GNOME);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Goblin Engineering", GOSSIP_SENDER_INFO, ENG_GOBLIN);
                 break;
 
             case SKILL_LEATHERWORKING:
+                if (player->GetLevel() < 60)
+                {
+                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    CloseGossipMenuFor(player);
+                    return true;
+                }
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Dragonscale", GOSSIP_SENDER_INFO, LEATHER_DRAGON);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elemental", GOSSIP_SENDER_INFO, LEATHER_ELEMENT);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Tribal", GOSSIP_SENDER_INFO, LEATHER_TRIBAL);
                 break;
 
             case SKILL_TAILORING:
+                if (player->GetLevel() < 70)
+                {
+                    player->GetSession()->SendNotification("You must be at least level 70.");
+                    CloseGossipMenuFor(player);
+                    return true;
+                }
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Shadoweave", GOSSIP_SENDER_INFO, TAILOR_SHADOW);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Mooncloth", GOSSIP_SENDER_INFO, TAILOR_MOON);
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Spellfire", GOSSIP_SENDER_INFO, TAILOR_SPELL);
@@ -125,7 +172,14 @@ public:
 
         if (Sender == GOSSIP_SENDER_INFO)
         {
-            if (player->HasSkill(SKILL))
+            uint8 requiredLevel = GetRequiredLevelForSpec(SKILL);
+            if (player->GetLevel() < requiredLevel)
+            {
+                player->GetSession()->SendNotification("You must be at least level %u.", requiredLevel);
+                CloseGossipMenuFor(player);
+                return true;
+            }
+            if (player->HasSpell(SKILL))
             {
                 player->GetSession()->SendNotification("You already have this Specialization.");
             }
@@ -140,13 +194,17 @@ public:
                     player->learnSpell(SKILL);
                     player->ModifyMoney(-speccost);
                 }
-                
+                else
+                {
+                    player->GetSession()->SendNotification("You do not have enough gold.");
+                }
             }
 
             CloseGossipMenuFor(player);
             return true;
         }
 
+        return false;
     }
 
 
