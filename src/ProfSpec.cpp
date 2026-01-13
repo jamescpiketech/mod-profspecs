@@ -101,7 +101,7 @@ public:
             case SKILL_ALCHEMY:
                 if (player->GetLevel() < 60)
                 {
-                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    ChatHandler(player->GetSession()).SendNotification("You must be at least level 60.");
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -113,7 +113,7 @@ public:
             case SKILL_BLACKSMITHING:
                 if (player->GetLevel() < 60)
                 {
-                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    ChatHandler(player->GetSession()).SendNotification("You must be at least level 60.");
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -133,7 +133,7 @@ public:
             case SKILL_ENGINEERING:
                 if (player->GetLevel() < 60)
                 {
-                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    ChatHandler(player->GetSession()).SendNotification("You must be at least level 60.");
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -144,7 +144,7 @@ public:
             case SKILL_LEATHERWORKING:
                 if (player->GetLevel() < 60)
                 {
-                    player->GetSession()->SendNotification("You must be at least level 60.");
+                    ChatHandler(player->GetSession()).SendNotification("You must be at least level 60.");
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -156,7 +156,7 @@ public:
             case SKILL_TAILORING:
                 if (player->GetLevel() < 70)
                 {
-                    player->GetSession()->SendNotification("You must be at least level 70.");
+                    ChatHandler(player->GetSession()).SendNotification("You must be at least level 70.");
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -175,13 +175,13 @@ public:
             uint8 requiredLevel = GetRequiredLevelForSpec(SKILL);
             if (player->GetLevel() < requiredLevel)
             {
-                player->GetSession()->SendNotification("You must be at least level %u.", requiredLevel);
+                ChatHandler(player->GetSession()).SendNotification("You must be at least level %u.", requiredLevel);
                 CloseGossipMenuFor(player);
                 return true;
             }
             if (player->HasSpell(SKILL))
             {
-                player->GetSession()->SendNotification("You already have this Specialization.");
+                ChatHandler(player->GetSession()).SendNotification("You already have this Specialization.");
             }
             else if (!EnableCost)
             {
@@ -196,7 +196,7 @@ public:
                 }
                 else
                 {
-                    player->GetSession()->SendNotification("You do not have enough gold.");
+                    ChatHandler(player->GetSession()).SendNotification("You do not have enough gold.");
                 }
             }
 
