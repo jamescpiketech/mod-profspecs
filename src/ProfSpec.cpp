@@ -8,6 +8,7 @@
 #include "Chat.h"
 #include "GossipDef.h"
 #include "ScriptedGossip.h"
+#include <sstream>
 
 enum Specs
 {
@@ -49,6 +50,36 @@ static uint8 GetRequiredLevelForSpec(uint32 specSpell)
     }
 }
 
+static std::string FormatCostString(uint32 cost)
+{
+    uint32 gold = cost / 10000;
+    uint32 silver = (cost / 100) % 100;
+    uint32 copper = cost % 100;
+    std::ostringstream oss;
+    if (gold > 0)
+        oss << gold << "g";
+    if (silver > 0)
+    {
+        if (oss.tellp() > 0)
+            oss << " ";
+        oss << silver << "s";
+    }
+    if (copper > 0 || oss.tellp() == 0)
+    {
+        if (oss.tellp() > 0)
+            oss << " ";
+        oss << copper << "c";
+    }
+    return oss.str();
+}
+
+static std::string BuildConfirmText(std::string_view specName)
+{
+    if (EnableCost)
+        return std::string("Purchase ") + std::string(specName) + " for " + FormatCostString(static_cast<uint32>(speccost)) + "?";
+    return std::string("Learn ") + std::string(specName) + "?";
+}
+
 
 class ProfSpec : public CreatureScript
 {
@@ -86,7 +117,7 @@ public:
         }
 
 
-        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -105,9 +136,9 @@ public:
                     CloseGossipMenuFor(player);
                     return true;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elixir Master", GOSSIP_SENDER_INFO, ALCH_ELIXIR);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Potion Master", GOSSIP_SENDER_INFO, ALCH_POTION);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Transmute Master", GOSSIP_SENDER_INFO, ALCH_TRANSMUTE);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elixir Master", GOSSIP_SENDER_INFO, ALCH_ELIXIR, BuildConfirmText("Elixir Master"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Potion Master", GOSSIP_SENDER_INFO, ALCH_POTION, BuildConfirmText("Potion Master"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Transmute Master", GOSSIP_SENDER_INFO, ALCH_TRANSMUTE, BuildConfirmText("Transmute Master"), 0, false);
                 break;
 
             case SKILL_BLACKSMITHING:
@@ -117,16 +148,16 @@ public:
                     CloseGossipMenuFor(player);
                     return true;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Armorsmith", GOSSIP_SENDER_INFO, BSMITH_ARMOR);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Armorsmith", GOSSIP_SENDER_INFO, BSMITH_ARMOR, BuildConfirmText("Armorsmith"), 0, false);
                 if (player->HasSpell(BSMITH_WEAPON))
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Swordsmith", GOSSIP_SENDER_INFO, BSMITH_SWORD);
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Axesmith", GOSSIP_SENDER_INFO, BSMITH_AXE);
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Hammersmith", GOSSIP_SENDER_INFO, BSMITH_HAMMER);
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Swordsmith", GOSSIP_SENDER_INFO, BSMITH_SWORD, BuildConfirmText("Master Swordsmith"), 0, false);
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Axesmith", GOSSIP_SENDER_INFO, BSMITH_AXE, BuildConfirmText("Master Axesmith"), 0, false);
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Master Hammersmith", GOSSIP_SENDER_INFO, BSMITH_HAMMER, BuildConfirmText("Master Hammersmith"), 0, false);
                 }
                 else
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Weaponsmith", GOSSIP_SENDER_INFO, BSMITH_WEAPON);
+                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Weaponsmith", GOSSIP_SENDER_INFO, BSMITH_WEAPON, BuildConfirmText("Weaponsmith"), 0, false);
                 }
                 break;
 
@@ -137,8 +168,8 @@ public:
                     CloseGossipMenuFor(player);
                     return true;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Gnomish Engineering", GOSSIP_SENDER_INFO, ENG_GNOME);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Goblin Engineering", GOSSIP_SENDER_INFO, ENG_GOBLIN);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Gnomish Engineering", GOSSIP_SENDER_INFO, ENG_GNOME, BuildConfirmText("Gnomish Engineering"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Goblin Engineering", GOSSIP_SENDER_INFO, ENG_GOBLIN, BuildConfirmText("Goblin Engineering"), 0, false);
                 break;
 
             case SKILL_LEATHERWORKING:
@@ -148,9 +179,9 @@ public:
                     CloseGossipMenuFor(player);
                     return true;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Dragonscale", GOSSIP_SENDER_INFO, LEATHER_DRAGON);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elemental", GOSSIP_SENDER_INFO, LEATHER_ELEMENT);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Tribal", GOSSIP_SENDER_INFO, LEATHER_TRIBAL);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Dragonscale", GOSSIP_SENDER_INFO, LEATHER_DRAGON, BuildConfirmText("Dragonscale"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Elemental", GOSSIP_SENDER_INFO, LEATHER_ELEMENT, BuildConfirmText("Elemental"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Tribal", GOSSIP_SENDER_INFO, LEATHER_TRIBAL, BuildConfirmText("Tribal"), 0, false);
                 break;
 
             case SKILL_TAILORING:
@@ -160,13 +191,13 @@ public:
                     CloseGossipMenuFor(player);
                     return true;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Shadoweave", GOSSIP_SENDER_INFO, TAILOR_SHADOW);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Mooncloth", GOSSIP_SENDER_INFO, TAILOR_MOON);
-                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Spellfire", GOSSIP_SENDER_INFO, TAILOR_SPELL);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Shadoweave", GOSSIP_SENDER_INFO, TAILOR_SHADOW, BuildConfirmText("Shadoweave"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Mooncloth", GOSSIP_SENDER_INFO, TAILOR_MOON, BuildConfirmText("Mooncloth"), 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Spellfire", GOSSIP_SENDER_INFO, TAILOR_SPELL, BuildConfirmText("Spellfire"), 0, false);
                 break;
             }
 
-            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
 
